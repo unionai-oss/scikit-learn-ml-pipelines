@@ -5,7 +5,9 @@ COLAB BUTTON
 ## Project Setup
 The quickest way to setup and the run the tutorial is often using a hosted notebook, like Google colab.
 
-COLAB 
+<a target="_blank" href="https://colab.research.google.com/github/unionai-oss/scikit-learn-ml-pipelines/blob/main/tutorial.ipynb">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a>
 
 Or you can follow the steps below to setup the project on your local machine or other environments.
 
