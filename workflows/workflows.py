@@ -14,13 +14,12 @@ from flytekit import task, workflow, Resources, ImageSpec
 # artifact to query between workflows
 KnnModelArtifact = Artifact(name="knn_model")
 
-
 # --------------------------------
 # Training Workflow (could be seperate workflows for data)
 # --------------------------------
 @workflow
 def train_iris_classification(n_neighbors: int=3, 
-                              pred_data: List[List[float]]=[[1.2, 2.1, 3.3, 4.0]]) -> None:
+                              pred_data: List[List[float]]=[[1.2, 2.1, 3.3, 4.0]]) -> KNeighborsClassifier:
     data = download_iris_dataset()
     train, test = process_dataset(data)
     model = train_knn_model(dataset=train, n_neighbors=n_neighbors)
