@@ -3,7 +3,7 @@ from typing import List
 import numpy as np
 from flytekit import Resources, task
 from sklearn.neighbors import KNeighborsClassifier
-from containers import image
+from containers import image, actor
 from union.actor import ActorEnvironment
 from flytekit.core.artifact import Artifact
 from typing_extensions import Annotated
@@ -27,17 +27,6 @@ def batch_knn_predict(
 # --------------------------------
 # near real-time prediction task with actors
 # --------------------------------
-
-actor = ActorEnvironment(
-    name="my-actor",
-    container_image=image,
-    replica_count=1,
-    ttl_seconds=120,
-    requests=Resources(
-        cpu="2",
-        mem="500Mi",
-    ),
-)
 
 @actor.task
 def actor_knn_predict(
