@@ -16,7 +16,7 @@ KnnModelArtifact = Artifact(name="knn_model")
     requests=Resources(cpu="2", mem="2Gi"),
 )
 def train_knn_model(
-    dataset: Annotated[pd.DataFrame, TrainIrisDataset], n_neighbors: int = 3
+    dataset: Annotated[pd.DataFrame, TrainIrisDataset], n_neighbors: int
 ) -> Annotated[KNeighborsClassifier, KnnModelArtifact]:
     
     X_train, y_train = dataset.drop("target", axis="columns"), dataset["target"]
