@@ -12,8 +12,6 @@ from typing import List
 from flytekit import task, workflow, Resources, ImageSpec
 
 # artifact to query between workflows
-TrainIrisDataset = Artifact(name="train_iris_dataset")
-TestIrisDataset = Artifact(name="test_iris_dataset")
 KnnModelArtifact = Artifact(name="knn_model")
 
 
@@ -21,11 +19,15 @@ KnnModelArtifact = Artifact(name="knn_model")
 # Training Workflow (could be seperate workflows for data)
 # --------------------------------
 @workflow
-def train_iris_classification() -> None:
+def train_iris_classification(n_neighbors: int=3, 
+                              pred_data: List[List[float]]=[[1.2, 2.1, 3.3, 4.0]]) -> None:
     data = download_iris_dataset()
     train, test = process_dataset(data)
-    model = train_knn_model(dataset=train)
+    model = train_knn_model(dataset=train, n_neighbors=n_neighbors)
     evaluate_model(model, test)
+    batch_knn_predict(model=model, pred_data=pred_data)
+
+    return model
     
 # union run --remote workflows/workflows.py train_iris_classification
 
@@ -63,5 +65,3 @@ def actor_prediction_knn(
     return pred
 
 #union run --remote workflows/workflows.py actor_prediction_knn
-
-
