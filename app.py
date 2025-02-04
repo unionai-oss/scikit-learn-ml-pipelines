@@ -1,37 +1,38 @@
-'''
-This is a gradio app that uses the actors environment to make predictions.
-Real time & app serving is coming soon! Schedule a demo to see more. 
-'''
+"""A Union app that uses sklearn and Streamlit"""
 
-import gradio as gr
-from union.remote import UnionRemote
+import os
+from union import Artifact, ImageSpec, Resources
+from union.app import App, Input
 
-# Create a remote connection
-remote = UnionRemote()
+# Define the artifact that holds the iris model.
+KnnModelArtifact = Artifact(name="knn_model")
 
-def predict_with_actor(pred_data):
-    pred_data = [[float(i) for i in pred_data.split(",")]]
-    inputs = {"pred_data": pred_data,}
-    
-    workflow = remote.fetch_workflow(name="workflows.workflows.actor_prediction_knn")
-    execution = remote.execute(workflow, inputs=inputs, wait=True)
-    print(execution.outputs['o0'])
-    return execution.outputs['o0']
-
-
-# Launch Gradio app
-iface = gr.Interface(
-    fn=predict_with_actor,
-    inputs=["text"],
-    outputs=gr.Textbox(label="Predictions:"),  # Change output to HTML for better formatting
-    live=False,
+# Define the container image including the required packages.
+image_spec = ImageSpec(
+    name="union-serve-iris-streamlit",
+    packages=[
+        "scikit-learn==1.6.0",
+        "union-runtime>=0.1.10",
+        "streamlit",  # For the UI
+    ],
+    registry=os.getenv("REGISTRY"),
 )
 
-iface.launch(debug=True)
+# Create the Union Serving App.
+streamlit_app = App(
+    name="simple-streamlit-iris",
+    inputs=[
+        Input(
+            name="sklearn_model",
+            value=KnnModelArtifact.query(),
+            download=True,  # The model artifact is downloaded when the container starts.
+        )
+    ],
+    container_image=image_spec,
+    limits=Resources(cpu="1", mem="1Gi"),
+    port=8082,
+    include=["./main.py"],  # Include your Streamlit code.
+    args=["streamlit", "run", "main.py", "--server.port", "8082"],
+)
 
-# def greet(name):
-#     return "Hello " + name + "!"
-
-# demo = gr.Interface(fn=greet, inputs="text", outputs="text")
-# demo.launch()   
-
+# union deploy apps app.py simple-streamlit-iris
