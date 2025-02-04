@@ -10,8 +10,9 @@ from flytekit import Deck, Resources, task
 from containers import image
 import os
 from flytekit.core.context_manager import FlyteContextManager
-from flytekit import Artifact
+from flytekit import Artifact, FlyteFile
 from typing_extensions import Annotated
+import joblib
 
 TestIrisDataset = Artifact(name="test_iris_dataset")
 
@@ -24,9 +25,10 @@ from tasks.utils import _convert_fig_into_html
     requests=Resources(cpu="2", mem="2Gi"),
 )
 def evaluate_model(
-    model: KNeighborsClassifier, dataset: Annotated[pd.DataFrame, TestIrisDataset]
+    model: FlyteFile, dataset: Annotated[pd.DataFrame, TestIrisDataset]
 ) -> KNeighborsClassifier:
     ctx = current_context()
+    model = joblib.load(model.download())
 
     X_test, y_test = dataset.drop("target", axis="columns"), dataset["target"]
     y_pred = model.predict(X_test)
